@@ -1,5 +1,3 @@
-// automate_shopping.js
-
 const { chromium } = require('playwright');
 const fs = require('fs');
 const path = require('path');
@@ -57,7 +55,7 @@ const results = [];
         }
 
 
-        for (const item of args.shopping_list) {
+        for (const item of args.scrape_list) {
             await page.fill('input[placeholder="Find a product"]', item);
             await page.press('button[type="submit"]', 'Enter');
 

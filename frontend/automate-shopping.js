@@ -1,5 +1,3 @@
-// automate_shopping.js
-
 const { chromium } = require('playwright');
 const fs = require('fs');
 
