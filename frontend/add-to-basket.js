@@ -7,6 +7,7 @@ const path = require('path');
 const args = JSON.parse(process.argv[2]);
 
 
+
 (async () => {
     const browser = await chromium.launch({ headless: false, slowMo: 800 });
     const context = await browser.newContext();
@@ -67,8 +68,11 @@ const args = JSON.parse(process.argv[2]);
         }
         console.log(links)
 
+
         for (const link of links) {
             await page.goto(link, { waitUntil: 'networkidle' })
+            await page.screenshot({ path: 'debug.png' });
+
             const addButton = page.locator('[data-test="counter-button"]').first();
             await addButton.scrollIntoViewIfNeeded();
 
