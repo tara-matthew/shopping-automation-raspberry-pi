@@ -4,8 +4,6 @@ const path = require("path");
 require('dotenv').config()
 const { login } = require('./auth')
 const {addToBasket} = require("./add-to-basket");
-// const Gpio = require('onoff').Gpio;
-// const led = new Gpio(589, 'out');
 
 const args = JSON.parse(process.argv[2]);
 
@@ -33,9 +31,12 @@ const args = JSON.parse(process.argv[2]);
     try {
         await page.goto(homeUrl);
 
-        try {
-            await page.click("button:has-text(\"Reject All\")", { timeout: 3000 });
-        } catch (e) {
+        const cookiesButton = 'button:has-text("Reject All")'
+        const rejectButton = await page.$(cookiesButton);
+        if (rejectButton) {
+            await rejectButton.click();
+            console.log("Cookies banner dismissed.");
+        } else {
             console.log("No cookies banner found.");
         }
 
@@ -51,23 +52,12 @@ const args = JSON.parse(process.argv[2]);
         const cookies = await context.cookies();
         fs.writeFileSync(path.join(__dirname, "cookies.json"), JSON.stringify(cookies, null, 2));
 
-        const urls = args.urls;
-
-        await addToBasket(page, urls)
+        await addToBasket(page, args.urls)
     } catch (error) {
         console.error("An error occurred:", error);
     } finally {
         console.log("All products added to basket");
         await browser.close();
-        led.unexport()
+        // led.unexport()
     }
 })();
-
-async function flashLed(times = 1, interval = 1000) {
-    for (let i = 0; i < times; i++) {
-        led.writeSync(1);
-        await new Promise(res => setTimeout(res, interval));
-        led.writeSync(0);
-        await new Promise(res => setTimeout(res, interval));
-    }
-}
