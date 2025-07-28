@@ -8,7 +8,8 @@ require('dotenv').config()
 const args = JSON.parse(process.argv[2]);
 
 (async () => {
-    console.log(process.env.PASSWORD)
+    const homeUrl = "https://groceries.morrisons.com/"
+
     const browser = await chromium.launch({ headless: false, slowMo: 300 });
     const context = await browser.newContext({
         userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64)...",
@@ -20,6 +21,7 @@ const args = JSON.parse(process.argv[2]);
     const page = await context.newPage();
 
     const cookiesPath = path.join(__dirname, "cookies.json");
+
     if (fs.existsSync(cookiesPath)) {
         const cookies = JSON.parse(fs.readFileSync(cookiesPath, "utf8"));
         await context.addCookies(cookies);
@@ -27,7 +29,7 @@ const args = JSON.parse(process.argv[2]);
     }
 
     try {
-        await page.goto("https://groceries.morrisons.com/");
+        await page.goto(homeUrl);
 
         try {
             await page.click("button:has-text(\"Reject All\")", { timeout: 3000 });
@@ -39,7 +41,6 @@ const args = JSON.parse(process.argv[2]);
 
         if (isLoggedOut) {
             await login(page)
-
         } else {
             console.log("Already logged in");
         }
@@ -49,22 +50,19 @@ const args = JSON.parse(process.argv[2]);
         fs.writeFileSync(path.join(__dirname, "cookies.json"), JSON.stringify(cookies, null, 2));
 
         const urls = args.urls;
-        console.log(urls)
 
         for (const link of urls) {
-            console.log(link);
             await page.goto(link, { waitUntil: "networkidle" });
             await page.screenshot({ path: "debug.png" });
 
             const addButton = page.locator("[data-test=\"counter-button\"]").first();
             await addButton.scrollIntoViewIfNeeded();
 
-            try {
+            const isVisible = await addButton.isVisible();
+            if (isVisible) {
                 await addButton.click();
-                // await flashLed(1)
                 console.log(`Added ${link} to basket`);
-
-            } catch (e) {
+            } else {
                 console.log("Add button not found or not clickable in this card");
             }
         }
