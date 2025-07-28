@@ -18,8 +18,6 @@ async function callAddToBasket() {
             body: JSON.stringify(payload),
         });
 
-        console.log(response)
-
         if (!response.ok) {
             console.error('Error:', response.status, response.statusText);
             const errorText = await response.text();
@@ -28,7 +26,7 @@ async function callAddToBasket() {
         }
 
         const ids = await response.json();
-        console.log('Response from server:', result);
+
         exec(`node ./run-playwright.js '${ids}'`, (error, stdout, stderr) => {
             if (error) {
                 console.error('Error running Playwright:', error);
