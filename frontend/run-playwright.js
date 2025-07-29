@@ -5,13 +5,12 @@ import dotenv from "dotenv";
 import { login } from "./auth.js";
 import { addToBasket } from "./basket.js";
 import { HOME_URL, COOKIES_PATH } from "./constants.js";
-import { loadCookies } from "./cookies.js";
+import {dismissCookieBanner, loadCookies} from "./cookies.js";
 import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load .env file
 dotenv.config();
 
 const args = JSON.parse(process.argv[2]);
@@ -34,14 +33,7 @@ const args = JSON.parse(process.argv[2]);
     try {
         await page.goto(HOME_URL);
 
-        const cookiesButton = 'button:has-text("Reject All")'
-        const rejectButton = await page.$(cookiesButton);
-        if (rejectButton) {
-            await rejectButton.click();
-            console.log("Cookies banner dismissed.");
-        } else {
-            console.log("No cookies banner found.");
-        }
+        await dismissCookieBanner(page)
 
         const isLoggedOut = await page.locator("text=Log in").first().isVisible();
 
