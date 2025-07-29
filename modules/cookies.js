@@ -14,6 +14,7 @@ export async function loadCookies(context) {
 
 export async function saveCookies(context) {
     const cookies = await context.cookies();
+    // TODO Fix path which cookies are written to
     fs.writeFileSync(path.join(__dirname, "cookies.json"), JSON.stringify(cookies, null, 2));
 }
 
