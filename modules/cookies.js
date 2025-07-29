@@ -7,6 +7,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export async function loadCookies(context) {
+    if (!fs.existsSync(COOKIES_PATH)) return;
     const cookies = JSON.parse(fs.readFileSync(COOKIES_PATH, "utf8"));
     await context.addCookies(cookies);
     console.log("Loaded saved cookies");

@@ -15,9 +15,7 @@ const args = JSON.parse(process.argv[2]);
     const browser = await chromium.launch({ headless: false, slowMo: 300 });
     const context = await createContext(browser)
 
-    if (fs.existsSync(COOKIES_PATH)) {
-        await loadCookies(context)
-    }
+    await loadCookies(context)
 
     const page = await context.newPage();
     const pageContext = page.context()
