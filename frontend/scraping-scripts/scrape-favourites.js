@@ -3,11 +3,11 @@ const fs = require('fs');
 const path = require('path');
 
 // Read JSON arguments from the CLI
-const args = JSON.parse(process.argv[2]);
+// const args = JSON.parse(process.argv[2]);
 const results = [];
 
 (async () => {
-    const browser = await chromium.launch({ headless: true, slowMo: 800 });
+    const browser = await chromium.launch({ headless: false, slowMo: 800 });
     const context = await browser.newContext();
     const page = await context.newPage();
 
@@ -21,7 +21,6 @@ const results = [];
     try {
         await page.goto('https://groceries.morrisons.com/');
 
-        // Accept cookies if needed
         try {
             await page.click('button:has-text("Reject All")', { timeout: 3000 });
         } catch (e) {
@@ -30,14 +29,11 @@ const results = [];
 
         const isLoggedOut = await page.locator('text=Log in').first().isVisible();
 
-        console.log(isLoggedOut)
         if (isLoggedOut) {
 
-            // Sign in
             await page.click('text=Log In');
             await page.waitForSelector('[data-test="login-button"]');
 
-            // 3. Click the real "Log in" link in the dropdown
             await page.click('[data-test="login-button"]');
             await page.fill('input[id="login-input"]', args.email);
             await page.fill('input[name="password"]', args.password);
@@ -54,56 +50,45 @@ const results = [];
             console.log('Already logged in')
         }
 
+        await page.goto('https://groceries.morrisons.com/favorites');
+        const cards = page.locator('.product-card-container');
+        const count = await cards.count();
+        console.log(`${count} product cards found.`);
 
-        for (const item of args.scrape_list) {
-            await page.fill('input[placeholder="Find a product"]', item);
-            await page.press('button[type="submit"]', 'Enter');
+        let previousCount = 0;
 
-            await page.waitForLoadState('networkidle');
-            await page.waitForTimeout(3000);
-            const productCards = await page.$$('.product-card-container');
-
+        while (true) {
             const cards = page.locator('.product-card-container');
             const count = await cards.count();
-            console.log(`${count} product cards found.`);
 
-            for (let i = 0; i < count; i++) {
-                const card = cards.nth(i);
+            if (count === previousCount) break;
 
-                // Check if card is sponsored
-                const spanTexts = await card.locator('span').allTextContents();
-                const isSponsored = spanTexts.some(text => text.toLowerCase().includes('sponsored'));
+            const lastCard = cards.nth(count - 1);
+            await lastCard.scrollIntoViewIfNeeded();
+            await page.waitForTimeout(800);
 
-                if (isSponsored) {
-                    console.log('Skipping sponsored item');
-                    continue;
-                }
-
-                await card.scrollIntoViewIfNeeded();
-
-                const addButton = card.locator('[data-test="counter-button"]');
-
-                const link = card.locator('a[href]').first();
-                const href = await link.getAttribute('href');
-                if (href) {
-                    // const fullUrl = new URL(href, page.url()).toString();
-                    results.push({ search_term: item, link: `https://groceries.morrisons.com${href}` });
-                    console.log(`Found: ${href}`);
-                    break;
-                }
-
-            }
-
-            await page.waitForTimeout(2000);
+            previousCount = count;
         }
 
-        console.log(results)
+        console.log(`Total cards found: ${previousCount}`);
 
+
+        for (let i = 0; i < previousCount; i++) {
+            const card = cards.nth(i);
+
+            await card.scrollIntoViewIfNeeded();
+
+            const link = await card.locator('[data-test="fop-product-link"]').first().getAttribute('href');
+            console.log('Product link:', link);
+            const nameIndex = 2
+            const productName = link.split('/')[nameIndex]
+            results.push({ search_term: productName, link: `https://groceries.morrisons.com${link}` });
+        }
     } catch (error) {
         console.error('An error occurred:', error);
     } finally {
-        fs.writeFileSync(path.join(__dirname, 'products.json'), JSON.stringify(results, null, 2));
-        console.log('Saved products to products.json');
+        fs.writeFileSync(path.join(__dirname, 'favorites.json'), JSON.stringify(results, null, 2));
+        console.log('Saved favourites to favourites.json');
         await browser.close();
     }
 })();
