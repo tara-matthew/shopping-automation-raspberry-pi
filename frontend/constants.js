@@ -1,9 +1,9 @@
-const path = require("path");
+import path from "path";
+import {fileURLToPath} from "url";
 
-const HOME_URL = "https://groceries.morrisons.com/"
-const COOKIES_PATH = path.join(__dirname, "cookies.json");
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-module.exports = {
-    HOME_URL,
-    COOKIES_PATH,
-};
+export const HOME_URL = "https://groceries.morrisons.com/"
+export const COOKIES_PATH = path.join(__dirname, "cookies.json");
+

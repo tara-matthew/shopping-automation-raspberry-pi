@@ -1,11 +1,18 @@
-const { chromium } = require("playwright");
-const fs = require("fs");
-const path = require("path");
-require('dotenv').config()
-const { login } = require('./auth')
-const {addToBasket} = require("./basket");
-const {HOME_URL, COOKIES_PATH} = require("./constants");
-const {loadCookies} = require("./cookies");
+import { chromium } from "playwright";
+import fs from "fs";
+import path from "path";
+import dotenv from "dotenv";
+import { login } from "./auth.js";
+import { addToBasket } from "./basket.js";
+import { HOME_URL, COOKIES_PATH } from "./constants.js";
+import { loadCookies } from "./cookies.js";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load .env file
+dotenv.config();
 
 const args = JSON.parse(process.argv[2]);
 
