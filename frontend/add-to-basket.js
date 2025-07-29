@@ -1,142 +1,17 @@
-const { chromium } = require('playwright');
-const fs = require('fs');
-const fsp = require('fs').promises;
-const path = require('path');
+export async function addToBasket(page, urls) {
+    for (const link of urls) {
+        await page.goto(link, { waitUntil: "networkidle" });
+        await page.screenshot({ path: "debug.png" });
 
-// Read JSON arguments from the CLI
-const args = JSON.parse(process.argv[2]);
+        const addButton = page.locator("[data-test=\"counter-button\"]").first();
+        await addButton.scrollIntoViewIfNeeded();
 
-
-
-(async () => {
-    const browser = await chromium.launch({ headless: false, slowMo: 800 });
-    const context = await browser.newContext();
-    const page = await context.newPage();
-
-    const cookiesPath = path.join(__dirname, 'cookies.json');
-    if (fs.existsSync(cookiesPath)) {
-        const cookies = JSON.parse(fs.readFileSync(cookiesPath, 'utf8'));
-        await context.addCookies(cookies);
-        console.log('Loaded saved cookies');
-    }
-
-    try {
-        await page.goto('https://groceries.morrisons.com/');
-
-        // Accept cookies if needed
-        try {
-            await page.click('button:has-text("Reject All")', { timeout: 3000 });
-        } catch (e) {
-            console.log('No cookies banner found.');
-        }
-
-        const isLoggedOut = await page.locator('text=Log in').first().isVisible();
-
-        console.log(isLoggedOut)
-        if (isLoggedOut) {
-
-            // Sign in
-            await page.click('text=Log In');
-            await page.waitForSelector('[data-test="login-button"]');
-
-            // 3. Click the real "Log in" link in the dropdown
-            await page.click('[data-test="login-button"]');
-            await page.fill('input[id="login-input"]', args.email);
-            await page.fill('input[name="password"]', args.password);
-            await page.click('[id="login-submit-button"]');
-
-            await page.waitForLoadState('networkidle');
-            console.log('Logged in successfully.');
-
-            const context = page.context();
-            const cookies = await context.cookies();
-            fs.writeFileSync(path.join(__dirname, 'cookies.json'), JSON.stringify(cookies, null, 2));
-            console.log('Saved session cookies.');
+        const isVisible = await addButton.isVisible();
+        if (isVisible) {
+            await addButton.click();
+            console.log(`Added ${link} to basket`);
         } else {
-            console.log('Already logged in')
+            console.log("Add button not found or not clickable in this card");
         }
-
-
-        const data = await fsp.readFile('products.json');
-        const products = JSON.parse(data);
-        const links = [];
-
-        for (const product of products) {
-            if (args.shopping_list.includes(product.search_term)) {
-                links.push(product.link);
-            }
-        }
-        console.log(links)
-
-
-        for (const link of links) {
-            await page.goto(link, { waitUntil: 'networkidle' })
-            await page.screenshot({ path: 'debug.png' });
-
-            const addButton = page.locator('[data-test="counter-button"]').first();
-            await addButton.scrollIntoViewIfNeeded();
-
-            try {
-                // await addButton.waitFor({ timeout: 5000 });
-                await addButton.click();
-                console.log(`Added ${link} to basket`);
-                // continue;
-            } catch (e) {
-                console.log('Add button not found or not clickable in this card');
-            }
-
-        }
-
-
-
-
-    //     for (const item of args.shopping_list) {
-    //         await page.fill('input[placeholder="Find a product"]', item);
-    //         await page.press('button[type="submit"]', 'Enter');
-    //
-    //         await page.waitForLoadState('networkidle');
-    //         await page.waitForTimeout(3000);
-    //
-    //         const cards = page.locator('.product-card-container');
-    //         const count = await cards.count();
-    //         console.log(`${count} product cards found.`);
-    //
-    //         for (let i = 0; i < count; i++) {
-    //             const card = cards.nth(i);
-    //
-    //             // Check if card is sponsored
-    //             const spanTexts = await card.locator('span').allTextContents();
-    //             const isSponsored = spanTexts.some(text => text.toLowerCase().includes('sponsored'));
-    //
-    //             if (isSponsored) {
-    //                 console.log('Skipping sponsored item');
-    //                 continue;
-    //             }
-    //
-    //             await card.scrollIntoViewIfNeeded();
-    //
-    //             const addButton = card.locator('[data-test="counter-button"]');
-    //
-    //             const link = card.locator('a[href]').first();
-    //             const href = await link.getAttribute('href');
-    //             if (href) {
-    //                 // const fullUrl = new URL(href, page.url()).toString();
-    //                 results.push({ search_term: item, link: `https://groceries.morrisons.com${href}` });
-    //                 console.log(`Found: ${href}`);
-    //                 break;
-    //             }
-    //
-    //         }
-    //
-    //         await page.waitForTimeout(2000);
-    //     }
-    //
-    //     console.log(results)
-    //
-    } catch (error) {
-        console.error('An error occurred:', error);
-    } finally {
-        console.log('All products added to basket');
-        await browser.close();
     }
-})();
+}
