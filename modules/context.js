@@ -1,4 +1,3 @@
-
 export async function createContext(browser) {
     return await browser.newContext({
         userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64)...",
