@@ -1,5 +1,5 @@
 import fetch from 'node-fetch';
-import {exec} from "node:child_process";
+import { exec } from "node:child_process";
 
 async function callAddToBasket() {
     const url = `${process.env.API_URL}/basket`;

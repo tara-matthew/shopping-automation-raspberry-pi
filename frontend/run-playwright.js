@@ -3,9 +3,9 @@ import dotenv from "dotenv";
 import { login } from "./auth.js";
 import { addToBasket } from "./basket.js";
 import { HOME_URL, COOKIES_PATH } from "./constants.js";
-import {dismissCookieBanner, loadCookies, saveCookies} from "./cookies.js";
-import {createContext} from "./context.js";
-import {chromium} from "playwright";
+import { dismissCookieBanner, loadCookies, saveCookies } from "./cookies.js";
+import { createContext } from "./context.js";
+import { chromium } from "playwright";
 
 dotenv.config();
 

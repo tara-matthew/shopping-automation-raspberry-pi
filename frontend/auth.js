@@ -19,14 +19,14 @@ async function solveRecaptcha(page) {
     const iframeSelector = "iframe[src*=\"recaptcha/api2/bframe\"]"
 
     try {
-        const frameHandle = await page.waitForSelector(iframeSelector, {timeout: 10000});
+        const frameHandle = await page.waitForSelector(iframeSelector, { timeout: 10000 });
 
         if (frameHandle) {
             console.log("? reCAPTCHA challenge iframe is visible.");
-            await page.waitForSelector(iframeSelector, {state: "detached", timeout: 300000});
+            await page.waitForSelector(iframeSelector, { state: "detached", timeout: 300000 });
             console.log("Captcha solved!");
             try {
-                await page.waitForNavigation({timeout: 10000, waitUntil: "networkidle"});
+                await page.waitForNavigation({ timeout: 10000, waitUntil: "networkidle" });
                 console.log("Navigation after captcha complete");
             } catch {
                 console.log("No navigation happened after captcha.");
