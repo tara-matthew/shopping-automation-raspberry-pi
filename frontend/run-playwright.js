@@ -3,13 +3,12 @@ const fs = require("fs");
 const path = require("path");
 require('dotenv').config()
 const { login } = require('./auth')
-const {addToBasket} = require("./add-to-basket");
+const {addToBasket} = require("./basket");
+const {HOME_URL} = require("./constants/constants");
 
 const args = JSON.parse(process.argv[2]);
 
 (async () => {
-    const homeUrl = "https://groceries.morrisons.com/"
-
     const browser = await chromium.launch({ headless: false, slowMo: 300 });
     const context = await browser.newContext({
         userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64)...",
@@ -29,7 +28,7 @@ const args = JSON.parse(process.argv[2]);
     }
 
     try {
-        await page.goto(homeUrl);
+        await page.goto(HOME_URL);
 
         const cookiesButton = 'button:has-text("Reject All")'
         const rejectButton = await page.$(cookiesButton);
