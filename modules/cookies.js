@@ -1,5 +1,5 @@
 import fs from "fs";
-import { COOKIES_PATH } from"./constants.js";
+import { COOKIES_PATH } from"../constants.js";
 import path from "path";
 import { fileURLToPath } from "url";
 

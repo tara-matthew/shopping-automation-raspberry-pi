@@ -1,10 +1,10 @@
 import fs from "fs";
 import dotenv from "dotenv";
-import { login } from "./auth.js";
-import { addToBasket } from "./basket.js";
+import { login } from "./modules/auth.js";
+import { addToBasket } from "./modules/basket.js";
 import { HOME_URL, COOKIES_PATH } from "./constants.js";
-import { dismissCookieBanner, loadCookies, saveCookies } from "./cookies.js";
-import { createContext } from "./context.js";
+import { dismissCookieBanner, loadCookies, saveCookies } from "./modules/cookies.js";
+import { createContext } from "./modules/context.js";
 import { chromium } from "playwright";
 
 dotenv.config();
