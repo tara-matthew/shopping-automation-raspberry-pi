@@ -1,10 +1,20 @@
 import fs from "fs";
 import {COOKIES_PATH} from"./constants.js";
+import path from "path";
+import {fileURLToPath} from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export async function loadCookies(context) {
     const cookies = JSON.parse(fs.readFileSync(COOKIES_PATH, "utf8"));
     await context.addCookies(cookies);
     console.log("Loaded saved cookies");
+}
+
+export async function saveCookies(context) {
+    const cookies = await context.cookies();
+    fs.writeFileSync(path.join(__dirname, "cookies.json"), JSON.stringify(cookies, null, 2));
 }
 
 export async function dismissCookieBanner(page) {

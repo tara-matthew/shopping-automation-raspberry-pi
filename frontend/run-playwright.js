@@ -5,11 +5,7 @@ import dotenv from "dotenv";
 import { login } from "./auth.js";
 import { addToBasket } from "./basket.js";
 import { HOME_URL, COOKIES_PATH } from "./constants.js";
-import {dismissCookieBanner, loadCookies} from "./cookies.js";
-import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import {dismissCookieBanner, loadCookies, saveCookies} from "./cookies.js";
 
 dotenv.config();
 
@@ -25,6 +21,7 @@ const args = JSON.parse(process.argv[2]);
     });
 
     const page = await context.newPage();
+    const pageContext = page.context()
 
     if (fs.existsSync(COOKIES_PATH)) {
         await loadCookies(context)
@@ -32,7 +29,6 @@ const args = JSON.parse(process.argv[2]);
 
     try {
         await page.goto(HOME_URL);
-
         await dismissCookieBanner(page)
 
         const isLoggedOut = await page.locator("text=Log in").first().isVisible();
@@ -44,8 +40,7 @@ const args = JSON.parse(process.argv[2]);
         }
 
         const context = page.context();
-        const cookies = await context.cookies();
-        fs.writeFileSync(path.join(__dirname, "cookies.json"), JSON.stringify(cookies, null, 2));
+        await saveCookies(pageContext)
 
         await addToBasket(page, args.urls)
     } catch (error) {
