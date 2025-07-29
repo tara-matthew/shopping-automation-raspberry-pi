@@ -87,7 +87,7 @@ const results = [];
     } catch (error) {
         console.error('An error occurred:', error);
     } finally {
-        fs.writeFileSync(path.join(__dirname, 'favorites.json'), JSON.stringify(results, null, 2));
+        fs.writeFileSync(path.join(__dirname, 'favourites.json'), JSON.stringify(results, null, 2));
         console.log('Saved favourites to favourites.json');
         await browser.close();
     }

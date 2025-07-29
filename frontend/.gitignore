@@ -7,3 +7,7 @@ node_modules/
 /playwright/.cache/
 .env
 cookies.json
+favourites.json
+products.json
+input.json
+debug.png
