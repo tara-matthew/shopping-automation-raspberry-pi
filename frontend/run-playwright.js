@@ -32,21 +32,17 @@ const args = JSON.parse(process.argv[2]);
         await dismissCookieBanner(page)
 
         const isLoggedOut = await page.locator("text=Log in").first().isVisible();
-
         if (isLoggedOut) {
             await login(page)
         } else {
             console.log("Already logged in");
         }
 
-        const context = page.context();
         await saveCookies(pageContext)
-
         await addToBasket(page, args.urls)
     } catch (error) {
         console.error("An error occurred:", error);
     } finally {
-        console.log("All products added to basket");
         await browser.close();
         // led.unexport()
     }
