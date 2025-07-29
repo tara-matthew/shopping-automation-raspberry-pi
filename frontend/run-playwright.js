@@ -5,6 +5,7 @@ require('dotenv').config()
 const { login } = require('./auth')
 const {addToBasket} = require("./basket");
 const {HOME_URL, COOKIES_PATH} = require("./constants");
+const {loadCookies} = require("./cookies");
 
 const args = JSON.parse(process.argv[2]);
 
@@ -20,9 +21,7 @@ const args = JSON.parse(process.argv[2]);
     const page = await context.newPage();
 
     if (fs.existsSync(COOKIES_PATH)) {
-        const cookies = JSON.parse(fs.readFileSync(COOKIES_PATH, "utf8"));
-        await context.addCookies(cookies);
-        console.log("Loaded saved cookies");
+        await loadCookies(context)
     }
 
     try {
